@@ -12,33 +12,26 @@ permissions:
   contents: write
 
 jobs:
-  build:
-
+  publish:
     runs-on: ubuntu-latest
-
+    container:
+      image: rust:latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: dtolnay/rust-toolchain@stable
-    - uses: Swatinem/rust-cache@v2
-
-    - name: Create version
-      run: | 
-        TAG=${{ github.ref_name }}
-        echo "TAG=${TAG}" >> $GITHUB_ENV
-        echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
-
-    - name: Set version
-      run: cargo set-version ${SEMVER}
-
-    - name: Build
-      run: cargo build --release
-
-    - name: Create archive
-      run: |
-        cd ./target/release
-        tar -cJf release-linux-x64.tar.xz gtmov
-
-    - name: Create release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release create ${TAG} ./target/release/release-linux-x64.tar.xz --generate-notes --title "${TAG}"
+      - uses: actions/checkout@v6
+      - name: Create version
+        run: |
+          TAG=${{ github.ref_name }}
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+          echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
+      - name: Set version
+        run: cargo set-version ${SEMVER}
+      - name: Build
+        run: cargo build --release
+      - name: Create archive
+        run: |
+          cd ./target/release
+          tar -cJf release-linux-x64.tar.xz gtmov
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create ${TAG} ./target/release/release-linux-x64.tar.xz --generate-notes --title "${TAG}"
