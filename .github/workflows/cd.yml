@@ -12,10 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: rust:latest
     steps:
       - uses: actions/checkout@v6
       - name: Create version
