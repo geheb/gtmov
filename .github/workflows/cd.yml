@@ -21,10 +21,8 @@ jobs:
           TAG=${{ github.ref_name }}
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
-      - name: Install cargo-edit
-        run: cargo install cargo-edit
       - name: Set version
-        run: cargo set-version ${SEMVER}
+        run: sed -i 's/^version = ".*"/version = "${SEMVER}"/' Cargo.toml
       - name: Build
         run: cargo build --release
       - name: Create archive
