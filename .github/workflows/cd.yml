@@ -22,7 +22,7 @@ jobs:
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
       - name: Set version
-        run: sed -i 's/^version = ".*"/version = "${SEMVER}"/' Cargo.toml
+        run: sed -i 's/^version = ".*"/version = "${{ env.SEMVER }}"/' Cargo.toml
       - name: Build
         run: cargo build --release
       - name: Create archive
