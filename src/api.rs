@@ -165,14 +165,20 @@ pub async fn populate_movies(
         .streaming(stream)
 }
 
-fn get_volume_label(path: &Path) -> Option<String> {
-    let disks = sysinfo::Disks::new_with_refreshed_list();
-    disks.iter()
-        .find(|d| path.starts_with(d.mount_point()))
-        .and_then(|d| {
-            let name = d.name().to_string_lossy().to_string();
-            if name.is_empty() { None } else { Some(name) }
-        })
+fn get_volume_label(_path: &Path) -> Option<String> {
+    #[cfg(target_os = "linux")]
+    { None }
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        let disks = sysinfo::Disks::new_with_refreshed_list();
+        disks.iter()
+            .find(|d| _path.starts_with(d.mount_point()))
+            .and_then(|d| {
+                let name = d.name().to_string_lossy().to_string();
+                if name.is_empty() { None } else { Some(name) }
+            })
+    }
 }
 
 async fn collect_files(root: &Path, dir: &Path, re: &Regex, files: &mut Vec<(String, String, i64)>) {
