@@ -1,0 +1,44 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Create version
+      run: | 
+        TAG=${{ github.ref_name }}
+        echo "TAG=${TAG}" >> $GITHUB_ENV
+        echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
+
+    - name: Set version
+      run: cargo set-version ${SEMVER}
+
+    - name: Build
+      run: cargo build --release
+
+    - name: Create archive
+      run: |
+        cd ./target/release
+        tar -cJf release-linux-x64.tar.xz gtmov
+
+    - name: Create release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create ${TAG} ./target/release/release-linux-x64.tar.xz --generate-notes --title "${TAG}"

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Mov</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>GT Mov</h1>
+        </div>
+        <div class="sidebar-sources">
+            <h3>SOURCE</h3>
+            <select id="sourceSelect"></select>
+        </div>
+        <nav class="sidebar-nav">
+            <h3>MOVIES</h3>
+            <ul class="genre-list" id="genreList">
+                <li class="genre-item active" data-genre="all">All Movies</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search movies...">
+            </div>
+            <div class="filter-tags">
+                <button class="filter-tag active" data-filter="all">All</button>
+                <button class="filter-tag" data-filter="rated">High Rated</button>
+                <button class="filter-tag" data-filter="unrated">Low Rated</button>
+                <button class="filter-tag" data-filter="recent">Recent</button>
+            </div>
+            <span class="movie-count" id="movieCount"></span>
+            <button class="hamburger-btn" id="hamburgerBtn" title="Import">
+                <span></span><span></span><span></span>
+            </button>
+        </header>
+
+        <section class="movies-grid" id="moviesGrid">
+            <!-- Movie cards injected by JS -->
+        </section>
+    </main>
+
+    <!-- Movie Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-content">
+                <div class="modal-poster">
+                    <img id="modalImage" src="" alt="">
+                    <div class="modal-poster-placeholder" id="modalPlaceholder">No Poster</div>
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalTitle"></h2>
+                    <div class="modal-meta">
+                        <span class="modal-year" id="modalYear"></span>
+                        <span class="modal-rating" id="modalRating"></span>
+                    </div>
+                    <div class="modal-genre" id="modalGenre"></div>
+                    <p class="modal-description" id="modalDescription"></p>
+                    <div class="modal-actions">
+                        <button class="modal-play hidden" id="modalPlay" onclick="openMovie()">&#9654; Play</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importOverlay">
+        <div class="modal import-modal">
+            <button class="modal-close" id="importClose">&times;</button>
+            <div class="import-modal-content">
+                <h2>Import Movies</h2>
+                <p>Scan a folder to import movies into your library.</p>
+                <input type="text" id="populatePath" placeholder="Folder path...">
+                <button id="populateBtn">Scan Folder</button>
+                <div class="import-progress hidden" id="importProgress">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                    <div class="progress-text" id="progressText"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
