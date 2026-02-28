@@ -23,6 +23,8 @@ jobs:
           TAG=${{ github.ref_name }}
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "SEMVER=${TAG#v}" >> $GITHUB_ENV
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
       - name: Set version
         run: cargo set-version ${SEMVER}
       - name: Build
