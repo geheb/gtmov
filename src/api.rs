@@ -10,6 +10,13 @@ use crate::models::{AppState, PopulateQuery, StaticFiles};
 use crate::repository;
 use crate::tmdb;
 
+#[get("/api/version")]
+pub async fn get_version() -> impl Responder {
+    HttpResponse::Ok().json(serde_json::json!({
+        "version": env!("CARGO_PKG_VERSION")
+    }))
+}
+
 #[get("/api/genres")]
 pub async fn get_genres(data: web::Data<AppState>) -> impl Responder {
     match repository::get_all_genres(&data.db).await {

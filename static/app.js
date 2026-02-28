@@ -363,6 +363,9 @@ async function loadGenres() {
 
 // Initial load
 async function init() {
+    fetch('/api/version').then(r => r.json()).then(d => {
+        document.title = `GT Mov v${d.version}`;
+    });
     await loadSources();
     loadGenres();
     loadMovies();

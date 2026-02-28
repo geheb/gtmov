@@ -56,6 +56,7 @@ async fn main() -> std::io::Result<()> {
                     .add(("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' 'unsafe-inline'"))
             )
             .app_data(app_state.clone())
+            .service(api::get_version)
             .service(api::get_genres)
             .service(api::get_movies)
             .service(api::get_movie_image)
