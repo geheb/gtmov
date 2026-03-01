@@ -11,6 +11,7 @@ pub struct StaticFiles;
 pub struct MovieResponse {
     pub id: i64,
     pub title: String,
+    pub original_title: Option<String>,
     pub year: Option<i64>,
     pub rating: Option<f64>,
     pub has_image: bool,
@@ -40,7 +41,8 @@ pub struct AppState {
 
 pub struct TmdbMovie {
     pub title: String,
-    pub year: i64,
+    pub original_title: Option<String>,
+    pub year: i32,
     pub rating: Option<f64>,
     pub description: Option<String>,
     pub image: Option<Vec<u8>>,

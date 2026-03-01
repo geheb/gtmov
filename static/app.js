@@ -50,8 +50,9 @@ function renderMovies() {
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             const matchTitle = movie.title.toLowerCase().includes(q);
+            const matchOriginal = movie.original_title && movie.original_title.toLowerCase().includes(q);
             const matchYear = movie.year && movie.year.toString().includes(q);
-            if (!matchTitle && !matchYear) return false;
+            if (!matchTitle && !matchOriginal && !matchYear) return false;
         }
 
         // Tag filters
@@ -107,6 +108,13 @@ function showDetail(id) {
     if (!movie) return;
 
     document.getElementById('modalTitle').textContent = movie.title;
+    const originalTitleEl = document.getElementById('modalOriginalTitle');
+    if (movie.original_title && movie.original_title !== movie.title) {
+        originalTitleEl.textContent = movie.original_title;
+        originalTitleEl.style.display = '';
+    } else {
+        originalTitleEl.style.display = 'none';
+    }
     document.getElementById('modalYear').textContent = movie.year || 'Unknown year';
 
     const ratingEl = document.getElementById('modalRating');

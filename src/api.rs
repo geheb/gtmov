@@ -112,7 +112,7 @@ pub async fn populate_movies(
 
     let re = Regex::new(r"^(.+)\((\d{4})\)\.\w+$").unwrap();
 
-    let mut files: Vec<(String, String, i64)> = Vec::new();
+    let mut files: Vec<(String, String, i32)> = Vec::new();
     collect_files(&path, &path, &re, &mut files).await;
     let total = files.len() as u32;
 
@@ -188,7 +188,7 @@ fn get_volume_label(_path: &Path) -> Option<String> {
     }
 }
 
-async fn collect_files(root: &Path, dir: &Path, re: &Regex, files: &mut Vec<(String, String, i64)>) {
+async fn collect_files(root: &Path, dir: &Path, re: &Regex, files: &mut Vec<(String, String, i32)>) {
     let mut entries = match tokio::fs::read_dir(dir).await {
         Ok(entries) => entries,
         Err(e) => {
@@ -203,7 +203,7 @@ async fn collect_files(root: &Path, dir: &Path, re: &Regex, files: &mut Vec<(Str
         } else if let Some(filename) = path.file_name().and_then(|f| f.to_str()) {
             if let Some(caps) = re.captures(filename) {
                 let title = caps[1].replace('_', " ").trim().to_string();
-                let year: i64 = caps[2].parse().unwrap_or(0);
+                let year = caps[2].parse().unwrap_or(0i32);
                 let rel_path = path.strip_prefix(root)
                     .unwrap_or(&path)
                     .to_string_lossy()

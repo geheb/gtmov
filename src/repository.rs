@@ -18,6 +18,7 @@ pub async fn init_db(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         "CREATE TABLE IF NOT EXISTS movies (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
+            original_title TEXT,
             year INTEGER,
             rating REAL,
             image BLOB,
@@ -63,7 +64,7 @@ pub async fn get_all_genres(pool: &SqlitePool) -> Result<Vec<String>, sqlx::Erro
 
 pub async fn get_all_movies(pool: &SqlitePool) -> Result<Vec<MovieResponse>, sqlx::Error> {
     sqlx::query_as(
-        "SELECT id, title, year, rating, (image IS NOT NULL AND length(image) > 0) AS has_image, description, genres, file_name, created_at, source_id FROM movies ORDER BY title"
+        "SELECT id, title, original_title, year, rating, (image IS NOT NULL AND length(image) > 0) AS has_image, description, genres, file_name, created_at, source_id FROM movies ORDER BY title"
     )
     .fetch_all(pool)
     .await
@@ -100,8 +101,9 @@ pub async fn insert_movie(
     genres: &Option<String>,
     source_id: i64,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO movies (title, year, rating, description, file_name, image, genres, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO movies (title, original_title, year, rating, description, file_name, image, genres, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
         .bind(&movie.title)
+        .bind(&movie.original_title)
         .bind(movie.year)
         .bind(movie.rating)
         .bind(&movie.description)
