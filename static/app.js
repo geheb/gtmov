@@ -80,7 +80,7 @@ function renderMovies() {
     }
 
     moviesGrid.innerHTML = filtered.map(movie => `
-        <div class="movie-card" onclick="showDetail(${movie.id})">
+        <div class="movie-card" data-movie-id="${movie.id}">
             <div class="movie-poster">
                 ${movie.has_image
                     ? `<img src="/api/movies/image/${movie.id}.jpg" alt="${escapeHtml(movie.title)}">`
@@ -302,6 +302,13 @@ document.querySelectorAll('.filter-tag').forEach(btn => {
         renderMovies();
     });
 });
+
+moviesGrid.addEventListener('click', (e) => {
+    const card = e.target.closest('.movie-card');
+    if (card && card.dataset.movieId) showDetail(parseInt(card.dataset.movieId));
+});
+
+document.getElementById('modalPlay').addEventListener('click', openMovie);
 
 modalClose.addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', (e) => {

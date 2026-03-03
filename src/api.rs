@@ -90,9 +90,10 @@ pub async fn populate_movies(
     let path = PathBuf::from(&scan_path);
 
     if !path.exists() || !path.is_dir() {
+        let msg = serde_json::json!({"error": format!("Path '{}' does not exist or is not a directory", scan_path)});
         return HttpResponse::BadRequest()
             .content_type("text/event-stream")
-            .body(format!("data: {{\"error\":\"Path '{}' does not exist or is not a directory\"}}\n\n", scan_path));
+            .body(format!("data: {}\n\n", msg));
     }
 
     let db = data.db.clone();
@@ -102,7 +103,7 @@ pub async fn populate_movies(
     if let Err(e) = repository::save_genres(&db, &genres).await {
         return HttpResponse::InternalServerError()
             .content_type("text/event-stream")
-            .body(format!("data: {{\"error\":\"Failed to save genres: {}\"}}\n\n", e));
+            .body(format!("data: {}\n\n", serde_json::json!({"error": format!("Failed to save genres: {}", e)})));
     }
 
     let volume_label = get_volume_label(&path);
@@ -111,7 +112,7 @@ pub async fn populate_movies(
         Err(e) => {
             return HttpResponse::InternalServerError()
                 .content_type("text/event-stream")
-                .body(format!("data: {{\"error\":\"Failed to create source: {}\"}}\n\n", e));
+                .body(format!("data: {}\n\n", serde_json::json!({"error": format!("Failed to create source: {}", e)})));
         }
     };
 
@@ -129,7 +130,7 @@ pub async fn populate_movies(
             async move { let _ = tx.send(msg).await; }
         };
 
-        send(format!("{{\"total\":{}}}", total)).await;
+        send(serde_json::json!({"total": total}).to_string()).await;
 
         // Process files with progress
         let mut added: u32 = 0;
@@ -160,10 +161,10 @@ pub async fn populate_movies(
                 }
             }
 
-            send(format!("{{\"processed\":{},\"total\":{},\"added\":{},\"skipped\":{},\"current\":\"{}\"}}", processed, total, added, skipped, title.replace('"', "\\\""))).await;
+            send(serde_json::json!({"processed": processed, "total": total, "added": added, "skipped": skipped, "current": title}).to_string()).await;
         }
 
-        send(format!("{{\"done\":true,\"added\":{},\"skipped\":{}}}", added, skipped)).await;
+        send(serde_json::json!({"done": true, "added": added, "skipped": skipped}).to_string()).await;
     });
 
     let stream = async_stream::stream! {

@@ -57,7 +57,7 @@ async fn main() -> std::io::Result<()> {
                     .add(("X-Frame-Options", "DENY"))
                     .add(("X-XSS-Protection", "1; mode=block"))
                     .add(("Referrer-Policy", "strict-origin-when-cross-origin"))
-                    .add(("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' 'unsafe-inline'"))
+                    .add(("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'"))
             )
             .app_data(app_state.clone())
             .service(api::get_version)
