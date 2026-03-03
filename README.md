@@ -6,7 +6,7 @@ Personal movie library manager with automatic metadata from TMDB.
 
 - **Folder Scan** — Import movies from local folders or external drives. Filenames must follow the pattern `Title (Year).ext`
 - **TMDB Integration** — Automatic lookup of title, rating, description, poster and genres (German locale)
-- **Sources** — Each scan path is stored as a source. Drive labels are auto-detected as alias (via `sysinfo`)
+- **Sources** — Each scan path is stored as a source. Drive labels are auto-detected as alias
 - **Filter & Search** — Filter by genre, source, rating, recency. Full-text search on title and year
 - **Play** — Open movie files directly from the browser via the system default player
 - **SSE Progress** — Folder scans stream real-time progress (processed/total) to the frontend
@@ -27,6 +27,7 @@ Personal movie library manager with automatic metadata from TMDB.
 # .env
 TMDB_API_KEY=your_api_key
 # DATABASE_URL=sqlite:movies.db  (optional, default)
+# PORT=8080 (optional, default)
 ```
 
 ```sh

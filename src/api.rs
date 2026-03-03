@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use bytes::Bytes;
 use regex::Regex;
 use std::path::{Path, PathBuf};
@@ -60,6 +60,11 @@ pub async fn open_movie(data: web::Data<AppState>, path: web::Path<i64>) -> impl
 
     match repository::get_full_file_path(&data.db, id).await {
         Ok(Some(path)) => {
+            if !std::path::Path::new(&path).exists() {
+                return HttpResponse::NotFound().json(serde_json::json!({
+                    "error": format!("File not found: {}", path)
+                }));
+            }
             match open::that_detached(&path) {
                 Ok(_) => HttpResponse::Accepted().body(""),
                 Err(e) => HttpResponse::InternalServerError().json(serde_json::json!({
@@ -213,6 +218,18 @@ async fn collect_files(root: &Path, dir: &Path, re: &Regex, files: &mut Vec<(Str
                 println!("Skipping unmatched file: {}", filename);
             }
         }
+    }
+}
+
+#[delete("/api/sources/{id}")]
+pub async fn delete_source(data: web::Data<AppState>, path: web::Path<i64>) -> impl Responder {
+    let id = path.into_inner();
+    match repository::delete_source(&data.db, id).await {
+        Ok(true) => HttpResponse::Ok().json(serde_json::json!({"deleted": true})),
+        Ok(false) => HttpResponse::NotFound().json(serde_json::json!({"error": "Source not found"})),
+        Err(e) => HttpResponse::InternalServerError().json(serde_json::json!({
+            "error": format!("Failed to delete source: {}", e)
+        })),
     }
 }
 

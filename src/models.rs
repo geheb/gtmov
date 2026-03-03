@@ -18,6 +18,7 @@ pub struct MovieResponse {
     pub description: Option<String>,
     pub genres: Option<String>,
     pub file_name: Option<String>,
+    pub imdb_url: Option<String>,
     pub created_at: String,
     pub source_id: Option<i64>,
 }
@@ -47,4 +48,5 @@ pub struct TmdbMovie {
     pub description: Option<String>,
     pub image: Option<Vec<u8>>,
     pub genres: Option<Vec<String>>,
+    pub imdb_url: Option<String>,
 }

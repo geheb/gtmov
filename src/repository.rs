@@ -3,6 +3,9 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 pub async fn init_db(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    sqlx::query("PRAGMA synchronous=NORMAL").execute(pool).await?;
+    sqlx::query("PRAGMA foreign_keys=ON").execute(pool).await?;
+
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS sources (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,6 +28,7 @@ pub async fn init_db(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             description TEXT,
             genres TEXT,
             file_name TEXT,
+            imdb_url TEXT,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             source_id INTEGER REFERENCES sources(id)
         )",
@@ -41,6 +45,9 @@ pub async fn init_db(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     .execute(pool)
     .await?;
 
+    sqlx::query("VACUUM").execute(pool).await?;
+    sqlx::query("PRAGMA optimize").execute(pool).await?;
+    
     Ok(())
 }
 
@@ -64,7 +71,7 @@ pub async fn get_all_genres(pool: &SqlitePool) -> Result<Vec<String>, sqlx::Erro
 
 pub async fn get_all_movies(pool: &SqlitePool) -> Result<Vec<MovieResponse>, sqlx::Error> {
     sqlx::query_as(
-        "SELECT id, title, original_title, year, rating, (image IS NOT NULL AND length(image) > 0) AS has_image, description, genres, file_name, created_at, source_id FROM movies ORDER BY title"
+        "SELECT id, title, original_title, year, rating, (image IS NOT NULL AND length(image) > 0) AS has_image, description, genres, file_name, imdb_url, created_at, source_id FROM movies ORDER BY title"
     )
     .fetch_all(pool)
     .await
@@ -101,7 +108,7 @@ pub async fn insert_movie(
     genres: &Option<String>,
     source_id: i64,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO movies (title, original_title, year, rating, description, file_name, image, genres, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO movies (title, original_title, year, rating, description, file_name, image, genres, imdb_url, source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         .bind(&movie.title)
         .bind(&movie.original_title)
         .bind(movie.year)
@@ -110,6 +117,7 @@ pub async fn insert_movie(
         .bind(file_name)
         .bind(&movie.image)
         .bind(genres)
+        .bind(&movie.imdb_url)
         .bind(source_id)
         .execute(pool)
         .await?;
@@ -127,6 +135,18 @@ pub async fn get_or_create_source(pool: &SqlitePool, path: &str, alias: Option<&
         .bind(path)
         .fetch_one(pool)
         .await
+}
+
+pub async fn delete_source(pool: &SqlitePool, id: i64) -> Result<bool, sqlx::Error> {
+    sqlx::query("DELETE FROM movies WHERE source_id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+    let result = sqlx::query("DELETE FROM sources WHERE id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+    Ok(result.rows_affected() > 0)
 }
 
 pub async fn get_all_sources(pool: &SqlitePool) -> Result<Vec<SourceResponse>, sqlx::Error> {

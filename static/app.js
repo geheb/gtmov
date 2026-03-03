@@ -151,6 +151,15 @@ function showDetail(id) {
         placeholderEl.style.display = '';
     }
 
+    // IMDb link
+    const imdbEl = document.getElementById('modalImdb');
+    if (movie.imdb_url) {
+        imdbEl.href = movie.imdb_url;
+        imdbEl.classList.remove('hidden');
+    } else {
+        imdbEl.classList.add('hidden');
+    }
+
     // Play button
     const playEl = document.getElementById('modalPlay');
     if (movie.file_name) {
@@ -299,9 +308,46 @@ modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) closeModal();
 });
 
-hamburgerBtn.addEventListener('click', () => {
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+
+hamburgerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hamburgerMenu.classList.toggle('active');
+});
+
+document.addEventListener('click', () => {
+    hamburgerMenu.classList.remove('active');
+});
+
+document.getElementById('menuImport').addEventListener('click', () => {
+    hamburgerMenu.classList.remove('active');
     importOverlay.classList.add('active');
     populatePath.focus();
+});
+
+document.getElementById('menuDeleteSource').addEventListener('click', async () => {
+    hamburgerMenu.classList.remove('active');
+    if (activeSource === 'all') {
+        showToast('Please select a source first', 'error');
+        return;
+    }
+    const label = sourceSelect.options[sourceSelect.selectedIndex]?.text || activeSource;
+    if (!confirm(`Delete source "${label}" and all its movies?`)) return;
+
+    try {
+        const res = await fetch(`/api/sources/${activeSource}`, { method: 'DELETE' });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to delete source');
+        }
+        showToast('Source deleted', 'success');
+        activeSource = 'all';
+        await loadSources();
+        await loadGenres();
+        await loadMovies();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
 });
 
 importClose.addEventListener('click', () => {
@@ -346,9 +392,9 @@ async function loadSources() {
     }
 }
 
-sourceSelect.addEventListener('change', () => {
+sourceSelect.addEventListener('change', async () => {
     activeSource = sourceSelect.value;
-    loadMovies();
+    await loadMovies();
 });
 
 
@@ -371,11 +417,13 @@ async function loadGenres() {
 
 // Initial load
 async function init() {
-    fetch('/api/version').then(r => r.json()).then(d => {
+    try {
+        const res = await fetch('/api/version');
+        const d = await res.json();
         document.title = `GT Mov v${d.version}`;
-    });
+    } catch {}
     await loadSources();
-    loadGenres();
-    loadMovies();
+    await loadGenres();
+    await loadMovies();
 }
 init();

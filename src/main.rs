@@ -20,6 +20,11 @@ async fn main() -> std::io::Result<()> {
     let tmdb_api_key = std::env::var("TMDB_API_KEY")
         .expect("TMDB_API_KEY must be set in .env");
 
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(8080);
+
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
         .connect_with(
@@ -35,14 +40,13 @@ async fn main() -> std::io::Result<()> {
 
     let app_state = web::Data::new(AppState { db: pool, tmdb_api_key });
 
-    let port = 8080;
     let addr_bind = format!("127.0.0.1:{port}");
     println!("Server starting at http://{addr_bind}");
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin(&format!("http://127.0.0.1:{port}"))
-            .allowed_methods(vec!["GET", "POST"])
+            .allowed_methods(vec!["GET", "POST", "DELETE"])
             .max_age(3600);
 
         App::new()
@@ -63,6 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(api::populate_movies)
             .service(api::open_movie)
             .service(api::get_sources)
+            .service(api::delete_source)
             .route("/", web::get().to(api::serve_index))
             .route("/{path:.*}", web::get().to(api::serve_embedded))
     })

@@ -36,9 +36,15 @@
                 <button class="filter-tag" data-filter="recent">Recent</button>
             </div>
             <span class="movie-count" id="movieCount"></span>
-            <button class="hamburger-btn" id="hamburgerBtn" title="Import">
-                <span></span><span></span><span></span>
-            </button>
+            <div class="hamburger-wrapper">
+                <button class="hamburger-btn" id="hamburgerBtn" title="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <button class="hamburger-menu-item" id="menuImport">Import Movies</button>
+                    <button class="hamburger-menu-item danger" id="menuDeleteSource">Delete Source</button>
+                </div>
+            </div>
         </header>
 
         <section class="movies-grid" id="moviesGrid">
@@ -65,6 +71,7 @@
                     <div class="modal-genre" id="modalGenre"></div>
                     <p class="modal-description" id="modalDescription"></p>
                     <div class="modal-actions">
+                        <a class="modal-imdb hidden" id="modalImdb" href="" target="_blank" rel="noopener">IMDb</a>
                         <button class="modal-play hidden" id="modalPlay" onclick="openMovie()">&#9654; Play</button>
                     </div>
                 </div>
